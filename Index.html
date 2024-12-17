@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard del Clima</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard del Clima</h1>
+        <div class="input-container">
+            <input type="text" id="city-input" placeholder="Ingresa el nombre de la ciudad">
+            <button id="search-button">Consultar</button>
+        </div>
+        <div class="weather-info">
+            <h2 id="city">Ciudad</h2>
+            <p id="temperature">Temperatura: --°C</p>
+            <p id="description">Descripción: --</p>
+            <img id="weather-icon" src="" alt="Icono del clima" style="display: none;">
+        </div>
+        <div class="forecast">
+            <h2>Pronóstico de los próximos 5 días</h2>
+            <div id="forecast-container" class="forecast-container"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
