@@ -1,0 +1,97 @@
+@page "/suppliers"
+@inject PortalApiClient ApiClient
+
+<PageTitle>Proveedores</PageTitle>
+
+<h2 class="mb-4">Registro de Proveedores</h2>
+
+<EditForm Model="_supplier" OnValidSubmit="RegisterSupplier">
+    <DataAnnotationsValidator />
+    <div class="row g-3">
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="_supplier.TaxId" placeholder="NIT" />
+        </div>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="_supplier.LegalName" placeholder="Razón social" />
+        </div>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="_supplier.Email" placeholder="Correo electrónico" />
+        </div>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="_supplier.Phone" placeholder="Teléfono" />
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit" disabled="@_isSubmitting">
+                Registrar proveedor
+            </button>
+        </div>
+    </div>
+</EditForm>
+
+@if (_suppliers?.Any() == true)
+{
+    <div class="table-responsive mt-4">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>NIT</th>
+                    <th>Razón social</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Puntaje de riesgo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var supplier in _suppliers)
+                {
+                    <tr>
+                        <td>@supplier.TaxId</td>
+                        <td>@supplier.LegalName</td>
+                        <td>@supplier.Email</td>
+                        <td>@supplier.Phone</td>
+                        <td>@supplier.RiskScore (@supplier.RiskLevel)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else if (!_isLoading)
+{
+    <p class="mt-4">No hay proveedores registrados aún.</p>
+}
+else
+{
+    <p class="mt-4">Cargando proveedores...</p>
+}
+
+@code {
+    private SupplierViewModel _supplier = new();
+    private List<SupplierViewModel> _suppliers = new();
+    private bool _isSubmitting;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSuppliersAsync();
+    }
+
+    private async Task LoadSuppliersAsync()
+    {
+        _isLoading = true;
+        _suppliers = (await ApiClient.GetSuppliersAsync()).ToList();
+        _isLoading = false;
+    }
+
+    private async Task RegisterSupplier()
+    {
+        _isSubmitting = true;
+        var created = await ApiClient.RegisterSupplierAsync(_supplier);
+        if (created is not null)
+        {
+            _supplier = new();
+            await LoadSuppliersAsync();
+        }
+        _isSubmitting = false;
+    }
+}

@@ -1,0 +1,59 @@
+@page "/document-validation"
+@inject PortalApiClient ApiClient
+
+<PageTitle>Validación de Documentos</PageTitle>
+
+<h2 class="mb-4">Sube tus documentos</h2>
+
+<InputFile OnChange="OnFileSelected" />
+
+@if (_isAnalyzing)
+{
+    <p class="mt-3">Analizando documento con Azure Document Intelligence...</p>
+}
+
+@if (_fields.Any())
+{
+    <div class="mt-4">
+        <h4>Resultados</h4>
+        <ul class="list-group">
+            @foreach (var field in _fields)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@field.Key</span>
+                    <strong>@field.Value</strong>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    private bool _isAnalyzing;
+    private readonly Dictionary<string, string> _fields = new();
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        if (e.File is null)
+        {
+            return;
+        }
+
+        _isAnalyzing = true;
+        _fields.Clear();
+
+        using var content = new MultipartFormDataContent();
+        var streamContent = new StreamContent(e.File.OpenReadStream(5 * 1024 * 1024));
+        streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(e.File.ContentType);
+        content.Add(streamContent, "file", e.File.Name);
+
+        var result = await ApiClient.AnalyzeDocumentAsync(content);
+
+        foreach (var (key, value) in result)
+        {
+            _fields[key] = value;
+        }
+
+        _isAnalyzing = false;
+    }
+}

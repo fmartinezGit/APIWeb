@@ -1,0 +1,22 @@
+@inherits LayoutComponentBase
+
+<div class="min-h-screen bg-slate-50">
+    <header class="bg-slate-900 text-white py-4 shadow">
+        <div class="container">
+            <h1 class="h3">Portal Inteligente de Proveedores</h1>
+        </div>
+    </header>
+    <main class="container my-4">
+        <div class="row">
+            <aside class="col-md-3 mb-3">
+                <NavMenu />
+            </aside>
+            <section class="col-md-9">
+                @Body
+            </section>
+        </div>
+    </main>
+    <footer class="bg-slate-200 py-4 mt-auto text-center text-sm text-slate-600">
+        © @DateTime.UtcNow.Year - Portal inteligente integrado con Dynamics 365 F&O
+    </footer>
+</div>
