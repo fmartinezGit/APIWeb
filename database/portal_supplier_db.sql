@@ -1,0 +1,92 @@
+CREATE DATABASE PortalSupplierDb;
+GO
+
+USE PortalSupplierDb;
+GO
+
+CREATE TABLE Suppliers (
+    SupplierId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+    TaxId NVARCHAR(50) NOT NULL,
+    LegalName NVARCHAR(200) NOT NULL,
+    Email NVARCHAR(150) NOT NULL,
+    Phone NVARCHAR(50) NULL,
+    RiskScore DECIMAL(5,2) NOT NULL DEFAULT 0,
+    RiskLevel NVARCHAR(50) NOT NULL DEFAULT 'Low',
+    CreatedOn DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE SupplierDocuments (
+    DocumentId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+    SupplierId UNIQUEIDENTIFIER NOT NULL,
+    FileName NVARCHAR(260) NOT NULL,
+    BlobUri NVARCHAR(500) NOT NULL,
+    DocumentType NVARCHAR(50) NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    ValidationSummary NVARCHAR(MAX) NULL,
+    UploadedOn DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_SupplierDocuments_Suppliers FOREIGN KEY (SupplierId)
+        REFERENCES Suppliers(SupplierId)
+);
+
+CREATE TABLE PurchaseOrders (
+    PurchaseOrderId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+    PurchaseOrderNumber NVARCHAR(50) NOT NULL,
+    SupplierId UNIQUEIDENTIFIER NOT NULL,
+    OrderDate DATETIME2 NOT NULL,
+    Currency NVARCHAR(10) NOT NULL,
+    TotalAmount DECIMAL(18,2) NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    CONSTRAINT FK_PurchaseOrders_Suppliers FOREIGN KEY (SupplierId)
+        REFERENCES Suppliers(SupplierId)
+);
+
+CREATE TABLE Invoices (
+    InvoiceId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+    SupplierId UNIQUEIDENTIFIER NOT NULL,
+    PurchaseOrderId UNIQUEIDENTIFIER NULL,
+    InvoiceNumber NVARCHAR(50) NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL,
+    InvoiceDate DATETIME2 NOT NULL,
+    Currency NVARCHAR(10) NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    RegisteredInErp BIT NOT NULL DEFAULT 0,
+    CreatedOn DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_Invoices_Suppliers FOREIGN KEY (SupplierId)
+        REFERENCES Suppliers(SupplierId),
+    CONSTRAINT FK_Invoices_PurchaseOrders FOREIGN KEY (PurchaseOrderId)
+        REFERENCES PurchaseOrders(PurchaseOrderId)
+);
+
+CREATE TABLE InvoiceLines (
+    InvoiceLineId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+    InvoiceId UNIQUEIDENTIFIER NOT NULL,
+    ItemNumber NVARCHAR(50) NOT NULL,
+    Description NVARCHAR(200) NULL,
+    Quantity DECIMAL(18,4) NOT NULL,
+    UnitPrice DECIMAL(18,4) NOT NULL,
+    CONSTRAINT FK_InvoiceLines_Invoices FOREIGN KEY (InvoiceId)
+        REFERENCES Invoices(InvoiceId)
+);
+
+CREATE TABLE Payments (
+    PaymentId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+    InvoiceId UNIQUEIDENTIFIER NOT NULL,
+    PaymentDate DATETIME2 NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    Reference NVARCHAR(100) NULL,
+    CONSTRAINT FK_Payments_Invoices FOREIGN KEY (InvoiceId)
+        REFERENCES Invoices(InvoiceId)
+);
+
+CREATE TABLE IntegrationEvents (
+    EventId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+    EntityType NVARCHAR(50) NOT NULL,
+    EntityId UNIQUEIDENTIFIER NOT NULL,
+    EventType NVARCHAR(50) NOT NULL,
+    Payload NVARCHAR(MAX) NOT NULL,
+    Processed BIT NOT NULL DEFAULT 0,
+    CreatedOn DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+);
+
+GO

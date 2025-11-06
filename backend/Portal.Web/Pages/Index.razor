@@ -1,0 +1,30 @@
+@page "/"
+@inject PortalApiClient ApiClient
+
+<PageTitle>Dashboard</PageTitle>
+
+<h2 class="mb-4">Dashboard del Proveedor</h2>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h3>Estado de integración</h3>
+            <p>Revisa el estado de conexión con Azure y Dynamics 365 F&O.</p>
+            <ul>
+                <li>Document Intelligence: Configuración mediante endpoint y modelo personalizado.</li>
+                <li>Dynamics 365 F&O: Integración vía OData para registro automático.</li>
+                <li>Azure OpenAI: Chatbot listo para soporte 24/7.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h3>Pasos principales</h3>
+            <ol class="mb-0">
+                <li>Registra tu empresa en la sección "Proveedores".</li>
+                <li>Sube tus facturas y órdenes de compra en "Validación de Documentos".</li>
+                <li>Sigue el estado de tus facturas en "Facturas".</li>
+            </ol>
+        </div>
+    </div>
+</div>

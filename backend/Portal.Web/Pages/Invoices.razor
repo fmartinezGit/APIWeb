@@ -1,0 +1,63 @@
+@page "/invoices"
+@inject PortalApiClient ApiClient
+
+<PageTitle>Facturas</PageTitle>
+
+<h2 class="mb-4">Seguimiento de Facturas</h2>
+
+@if (_invoices.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Orden de compra</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in _invoices)
+                {
+                    <tr>
+                        <td>@invoice.InvoiceNumber</td>
+                        <td>@invoice.PurchaseOrderNumber</td>
+                        <td>@invoice.Amount.ToString("C")</td>
+                        <td>@invoice.InvoiceDate.ToShortDateString()</td>
+                        <td><span class="badge bg-info text-dark">@invoice.Status</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else if (_isLoading)
+{
+    <p>Cargando facturas...</p>
+}
+else
+{
+    <div class="alert alert-info">No se encontraron facturas para el proveedor seleccionado.</div>
+}
+
+@code {
+    private readonly List<InvoiceViewModel> _invoices = new();
+    private readonly Guid _sampleSupplierId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInvoicesAsync();
+    }
+
+    private async Task LoadInvoicesAsync()
+    {
+        _isLoading = true;
+        var invoices = await ApiClient.GetInvoicesAsync(_sampleSupplierId);
+        _invoices.Clear();
+        _invoices.AddRange(invoices);
+        _isLoading = false;
+    }
+}
